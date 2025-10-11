@@ -1,13 +1,13 @@
 {
   "version": "1.0",
   "mediawiki": {
-    "name": "OpenRefine shira",
-    "root": "https://shira.wikibase.cloud/wiki/",
-    "main_page": "https://shira.wikibase.cloud/wiki/Main_Page",
-    "api": "https://shira.wikibase.cloud/w/api.php"
+    "name": "OpenRefine DanceDatabase",
+    "root": "https://dance.wikibase.cloud/wiki/",
+    "main_page": "https://dance.wikibase.cloud/wiki/Main_Page",
+    "api": "https://dance.wikibase.cloud/w/api.php"
   },
   "wikibase": {
-    "site_iri": "https://shira.wikibase.cloud/entity/",
+    "site_iri": "https://dance.wikibase.cloud/entity/",
     "maxlag": 5,
     "max_edits_per_minute": 60,
     "tag": "openrefine-${version}",
@@ -17,16 +17,16 @@
     }
   },
   "oauth": {
-    "registration_page": "https://shira.wikibase.cloud/wiki/Special:OAuthConsumerRegistration/propose"
+    "registration_page": "https://dance.wikibase.cloud/wiki/Special:OAuthConsumerRegistration/propose"
   },
   "reconciliation": {
     "endpoint": "http://localhost:8000/${lang}/api"
   },
   "entity_types": {
     "item": {
-      "site_iri": "https://shira.wikibase.cloud/entity/",
+      "site_iri": "https://dance.wikibase.cloud/entity/",
       "reconciliation_endpoint": "http://localhost:8000/${lang}/api",
-      "mediawiki_api": "https://shira.wikibase.cloud/w/api.php"
+      "mediawiki_api": "https://dance.wikibase.cloud/w/api.php"
     }
   }
 }

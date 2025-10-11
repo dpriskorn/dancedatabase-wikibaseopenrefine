@@ -5,7 +5,8 @@ which Wikibase instance and which property/item ids
 should be used
 """
 
-wikibase_url = 'https://shira.wikibase.cloud'
+#wikibase_url = 'https://shira.wikibase.cloud'
+wikibase_url = 'https://dance.wikibase.cloud'
 
 # Endpoint of the MediaWiki API of the Wikibase instance
 mediawiki_api_endpoint = wikibase_url + '/w/api.php'
@@ -13,7 +14,7 @@ mediawiki_api_endpoint = wikibase_url + '/w/api.php'
 # SPARQL endpoint
 wikibase_sparql_endpoint = wikibase_url + '/query/sparql'
 # Name of the Wikibase instance
-wikibase_name = 'ShiraWikibase.cloud'
+wikibase_name = 'DanceDatabaseWikibase.cloud'
 
 # URL of the main page of the Wikibase instance
 wikibase_main_page = wikibase_url + '/wiki/Main_Page'
@@ -34,9 +35,9 @@ user_agent = 'OpenRefine-Wikibase reconciliation interface'
 import re
 # Different from Wikidata, which has items in the main namespace, not Item
 # re.compile(r'(<?https?://shira.wikibase.cloud/(entity|wiki)/)?(Q[0-9]+)>?')
-q_re = re.compile(r'(<?https?://shira.wikibase.cloud/(entity/|wiki/Item:))?(Q[0-9]+)>?')
+q_re = re.compile(r'(<?https?://dance.wikibase.cloud/(entity/|wiki/Item:))?(Q[0-9]+)>?')
 q_re_group_id = 3
-p_re = re.compile(r'(<?https?://shira.wikibase.cloud/(entity/|wiki/Property:))?(P[0-9]+)>?')
+p_re = re.compile(r'(<?https?://dance.wikibase.cloud/(entity/|wiki/Property:))?(P[0-9]+)>?')
 p_re_group_id = 3
 
 # Identifier space and schema space exposed to OpenRefine.
@@ -61,7 +62,7 @@ avoid_items_of_class = None
 
 # Service name exposed at various places,
 # mainly in the list of reconciliation services of users
-service_name = 'shira.cloud recon service'
+service_name = 'dance.cloud recon service'
 
 # URL (without the trailing slash) where this server runs
 this_host = 'http://localhost:8000'
@@ -122,7 +123,8 @@ default_type_entity = None
 
 # Property path used to obtain the type of an item
 # https://shira.wikibase.cloud/wiki/Property:P39
-type_property_path = 'P39' 
+# https://dance.wikibase.cloud/wiki/Property:P1
+type_property_path = 'P1'
 
 # Property to follow to fetch properties for a given type.
 # Set to None if this is not available
@@ -134,9 +136,10 @@ wdt_prefix = 'wdt'
 
 # Sparql query used to fetch all the subclasses of a given item.
 # https://shira.wikibase.cloud/wiki/Property:P40
+# https://dance.wikibase.cloud/wiki/Property:P2
 # The '$qid' string will be replaced by the qid whose children should be fetched.
 sparql_query_to_fetch_subclasses = """
-SELECT ?child WHERE { ?child wdt:P40* wd:$qid }
+SELECT ?child WHERE { ?child wdt:P2* wd:$qid }
 """
 
 # Sparql query used to fetch all the properties which store unique identifiers
