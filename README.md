@@ -1,6 +1,12 @@
 # Wikibase Open Refine Reconciliation Tutorial Files
 Tutorial for creating a reconciliation service for wikibase.cloud for OpenRefine. For step-by-step documentation see https://www.library.upenn.edu/kislak/judaicadh/blog/wikibasecloudreconcile
 
+## Troubleshooting
+If you started your reconciliation service and dont see it here 
+<img width="1010" height="700" alt="image" src="https://github.com/user-attachments/assets/ce901dfd-a68f-4199-ab3a-a8353cc202cc" />
+then restarting openrefine is the best solution.
+
+## Details
 * wikibase_namespace_id = 120
 * wikibase_namespace_prefix = 'Item:'
 * mediawiki_api_endpoint   = 'https://<your-instance>.wikibase.cloud/w/api.php'
