@@ -1,7 +1,7 @@
 
 import pytest
 import aiohttp
-import aioredis
+import redis.asyncio as redis
 import os
 import json
 from quart import Quart
@@ -26,7 +26,7 @@ async def http_session():
 
 @pytest.fixture
 async def redis_client():
-    redis = aioredis.from_url(redis_uri, encoding='utf-8', decode_responses=True)
+    redis_client = redis.from_url(redis_uri, encoding='utf-8', decode_responses=True)
     await redis.flushdb()
     yield redis
 
