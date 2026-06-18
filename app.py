@@ -39,7 +39,8 @@ async def request_context():
 async def teardown():
     await app.http_session.__aexit__(None, None, None)
     app.redis_client.close()
-    await app.redis_client.wait_closed()
+    if hasattr(app.redis_client, 'wait_closed'):
+        await app.redis_client.wait_closed()
 
 def jsonp(view):
     async def wrapped(*posargs, **kwargs):
@@ -338,5 +339,5 @@ def fix_lang(lng):
     return lng
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000, host='0.0.0.0')
+    app.run(debug=True, port=8001, host='0.0.0.0')
 
