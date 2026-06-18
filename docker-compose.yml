@@ -3,7 +3,7 @@ services:
   reconcile:
     build: .
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - type: bind
         source: ./config.py
