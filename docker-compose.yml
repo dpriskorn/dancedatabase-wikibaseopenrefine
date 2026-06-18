@@ -1,4 +1,3 @@
-version: '3.2'
 services:
   reconcile:
     build: .
@@ -10,6 +9,6 @@ services:
         target: /openrefine-wikibase1/config.py
         read_only: true
   redis:
-    image: "redis:alpine"
+    image: "valkey/valkey:alpine"
     expose:
       - "6379" 
