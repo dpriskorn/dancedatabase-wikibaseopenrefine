@@ -1,0 +1,1105 @@
+openapi: 3.0.3
+info:
+  title: Wikibase OpenRefine Reconciliation Service
+  description: |
+    A reconciliation service for Wikibase instances (like wikibase.cloud).
+    Implements the OpenRefine Reconciliation Service API specification.
+
+    This service allows OpenRefine to match spreadsheet data against items
+    in a Wikibase instance, fetch property values, and provide type/property suggestions.
+  version: 1.0.0
+  contact:
+    name: OpenRefine Wikibase Project
+servers:
+  - url: http://localhost:8000
+    description: Default development server
+
+paths:
+  /:
+    get:
+      operationId: getHome
+      summary: Service home page
+      responses:
+        '200':
+          description: HTML home page with service status
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /monitoring:
+    get:
+      operationId: getMonitoring
+      summary: Service statistics
+      responses:
+        '200':
+          description: Service statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    additionalProperties: true
+
+  /api:
+    get:
+      operationId: apiDefaultLang
+      summary: Main reconciliation endpoint (no lang prefix)
+      parameters:
+        - name: query
+          in: query
+          description: Single query string or JSON object
+          schema:
+            type: string
+        - name: queries
+          in: query
+          description: JSON object of multiple queries keyed by query ID
+          schema:
+            type: string
+        - name: extend
+          in: query
+          description: JSON object for data extension
+          schema:
+            type: string
+        - name: lang
+          in: query
+          description: Language code (defaults to 'en')
+          schema:
+            type: string
+            default: en
+        - name: callback
+          in: query
+          description: JSONP callback function name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reconciliation response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationResponse'
+        '403':
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                queries:
+                  type: string
+                extend:
+                  type: string
+                lang:
+                  type: string
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  $ref: '#/components/schemas/ReconcileQuery'
+                queries:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/ReconcileQuery'
+                extend:
+                  $ref: '#/components/schemas/ExtendQuery'
+                lang:
+                  type: string
+    post:
+      operationId: apiDefaultLangPost
+      summary: Main reconciliation endpoint (POST, no lang prefix)
+      parameters:
+        - name: lang
+          in: query
+          description: Language code
+          schema:
+            type: string
+            default: en
+        - name: callback
+          in: query
+          description: JSONP callback function name
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: JSON string of ReconcileQuery
+                queries:
+                  type: string
+                  description: JSON string of query map
+                extend:
+                  type: string
+                  description: JSON string of ExtendQuery
+      responses:
+        '200':
+          description: Reconciliation response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationResponse'
+        '403':
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /{lang}/api:
+    parameters:
+      - name: lang
+        in: path
+        required: true
+        description: Language code (e.g., 'en', 'fr', 'de')
+        schema:
+          type: string
+          default: en
+    get:
+      operationId: apiWithLang
+      summary: Main reconciliation endpoint with language
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: queries
+          in: query
+          schema:
+            type: string
+        - name: extend
+          in: query
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reconciliation response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationResponse'
+        '403':
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: apiWithLangPost
+      summary: Main reconciliation endpoint with language (POST)
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                queries:
+                  type: string
+                extend:
+                  type: string
+      responses:
+        '200':
+          description: Reconciliation response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationResponse'
+
+  /{lang}/suggest/type:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: suggestType
+      summary: Get type suggestions
+      parameters:
+        - name: prefix
+          in: query
+          required: true
+          description: Search prefix
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Type suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestResponse'
+    post:
+      operationId: suggestTypePost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                prefix:
+                  type: string
+      responses:
+        '200':
+          description: Type suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestResponse'
+
+  /{lang}/suggest/property:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: suggestProperty
+      summary: Get property suggestions
+      parameters:
+        - name: prefix
+          in: query
+          required: true
+          description: Search prefix
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Property suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestPropertyResponse'
+    post:
+      operationId: suggestPropertyPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                prefix:
+                  type: string
+      responses:
+        '200':
+          description: Property suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestPropertyResponse'
+
+  /{lang}/suggest/entity:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: suggestEntity
+      summary: Get entity suggestions
+      parameters:
+        - name: prefix
+          in: query
+          required: true
+          description: Search prefix
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Entity suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestResponse'
+    post:
+      operationId: suggestEntityPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                prefix:
+                  type: string
+      responses:
+        '200':
+          description: Entity suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestResponse'
+
+  /{lang}/preview:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: preview
+      summary: Get preview HTML for an entity
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Entity ID (QID or PID)
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Preview HTML
+          content:
+            text/html:
+              schema:
+                type: string
+    post:
+      operationId: previewPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Preview HTML
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /{lang}/flyout/type:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: flyoutType
+      summary: Get flyout data for a type
+      parameters:
+        - name: id
+          in: query
+          description: Type ID
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flyout data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlyoutResponse'
+    post:
+      operationId: flyoutTypePost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Flyout data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlyoutResponse'
+
+  /{lang}/flyout/property:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: flyoutProperty
+      summary: Get flyout data for a property
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flyout data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlyoutResponse'
+    post:
+      operationId: flyoutPropertyPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Flyout data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlyoutResponse'
+
+  /{lang}/flyout/entity:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: flyoutEntity
+      summary: Get flyout data for an entity
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flyout data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlyoutResponse'
+    post:
+      operationId: flyoutEntityPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Flyout data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlyoutResponse'
+
+  /{lang}/fetch_values:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: fetchValues
+      summary: Fetch property values for a single item
+      parameters:
+        - name: item
+          in: query
+          required: true
+          description: Item ID (QID)
+          schema:
+            type: string
+        - name: prop
+          in: query
+          required: true
+          description: Property ID (PID) or property path
+          schema:
+            type: string
+        - name: label
+          in: query
+          description: Whether to fetch labels ('true' or 'false')
+          schema:
+            type: string
+            default: 'true'
+        - name: flat
+          in: query
+          description: Return flat value instead of JSON ('true')
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Property values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchValuesResponse'
+    post:
+      operationId: fetchValuesPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                item:
+                  type: string
+                prop:
+                  type: string
+                label:
+                  type: string
+                flat:
+                  type: string
+      responses:
+        '200':
+          description: Property values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchValuesResponse'
+
+  /{lang}/fetch_property_by_batch:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: fetchPropertyByBatch
+      summary: Batch fetch a single property for multiple items
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          description: Pipe-separated list of item IDs
+          schema:
+            type: string
+        - name: prop
+          in: query
+          required: true
+          description: Property ID (PID) or property path
+          schema:
+            type: string
+        - name: label
+          in: query
+          schema:
+            type: string
+            default: 'true'
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Batch property values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchPropertyBatchResponse'
+    post:
+      operationId: fetchPropertyByBatchPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: string
+                prop:
+                  type: string
+                label:
+                  type: string
+      responses:
+        '200':
+          description: Batch property values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchPropertyBatchResponse'
+
+  /{lang}/fetch_properties_by_batch:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: fetchPropertiesByBatch
+      summary: Batch fetch multiple properties for multiple items
+      parameters:
+        - name: extend
+          in: query
+          required: true
+          description: JSON object with 'ids' and 'properties' arrays
+          schema:
+            type: string
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Batch properties result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchPropertiesBatchResponse'
+    post:
+      operationId: fetchPropertiesByBatchPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                extend:
+                  type: string
+                  description: JSON string of ExtendQuery
+      responses:
+        '200':
+          description: Batch properties result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchPropertiesBatchResponse'
+
+  /{lang}/propose_properties:
+    parameters:
+      - $ref: '#/components/parameters/lang'
+    get:
+      operationId: proposeProperties
+      summary: Propose properties for a given type
+      parameters:
+        - name: type
+          in: query
+          description: Type QID
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of properties to return
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+        - name: callback
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Proposed properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposePropertiesResponse'
+    post:
+      operationId: proposePropertiesPost
+      parameters:
+        - name: callback
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                limit:
+                  type: integer
+      responses:
+        '200':
+          description: Proposed properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposePropertiesResponse'
+
+components:
+  parameters:
+    lang:
+      name: lang
+      in: path
+      required: true
+      description: Language code
+      schema:
+        type: string
+        default: en
+
+  schemas:
+    ReconcileQuery:
+      type: object
+      description: Single reconciliation query
+      properties:
+        query:
+          type: string
+          description: Search query string
+        type:
+          type: string
+          description: Type QID to filter results
+        type_strict:
+          type: string
+          enum: [any, all, should]
+          description: How to match types
+          default: any
+        properties:
+          type: array
+          description: Additional properties to match against
+          items:
+            $ref: '#/components/schemas/PropertyValue'
+        limit:
+          type: integer
+          description: Maximum results to return
+          default: 25
+
+    PropertyValue:
+      type: object
+      required:
+        - pid
+        - v
+      properties:
+        pid:
+          type: string
+          description: Property ID (e.g., 'P31', 'P17') or special like 'all_labels'
+        v:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+            - type: object
+              properties:
+                id:
+                  type: string
+          description: Value(s) to match against this property
+        settings:
+          type: object
+          description: Optional settings for property fetching
+          properties:
+            limit:
+              type: integer
+            rank:
+              type: string
+              enum: [any, best, no_deprecated]
+            references:
+              type: string
+              enum: [any, referenced, no_wiki]
+            count:
+              type: string
+              enum: [on]
+
+    ReconcileResult:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Entity ID (e.g., Q123)
+        name:
+          type: string
+          description: Entity label
+        description:
+          type: string
+          description: Entity description
+        score:
+          type: number
+          format: float
+          description: Match score (0-100)
+        match:
+          type: boolean
+          description: Whether this is an automatic match
+        type:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              value:
+                type: number
+
+    ReconciliationResponse:
+      oneOf:
+        - type: object
+          description: Identify response (when no query parameter)
+          properties:
+            name:
+              type: string
+            versions:
+              type: array
+              items:
+                type: string
+            view:
+              type: object
+              properties:
+                url:
+                  type: string
+            identifierSpace:
+              type: string
+            schemaSpace:
+              type: string
+            suggest:
+              type: object
+            preview:
+              type: object
+            defaultTypes:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+            extend:
+              type: object
+        - type: object
+          description: Single query results
+          properties:
+            result:
+              type: array
+              items:
+                $ref: '#/components/schemas/ReconcileResult'
+        - type: object
+          description: Batch query results
+          additionalProperties:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReconcileResult'
+
+    SuggestResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+
+    SuggestPropertyResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+
+    FlyoutResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        html:
+          type: string
+          nullable: true
+
+    FetchValuesResponse:
+      type: object
+      properties:
+        item:
+          type: string
+        prop:
+          type: string
+        values:
+          type: array
+          items:
+            type: string
+
+    FetchPropertyBatchResponse:
+      type: object
+      properties:
+        prop:
+          type: string
+        values:
+          type: array
+          items:
+            type: array
+            items:
+              oneOf:
+                - type: string
+                - type: object
+
+    ExtendQuery:
+      type: object
+      required:
+        - ids
+        - properties
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          description: List of item IDs
+        properties:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: string
+                description: Property ID or path
+              settings:
+                type: object
+                properties:
+                  limit:
+                    type: integer
+                  rank:
+                    type: string
+                  references:
+                    type: string
+                  count:
+                    type: string
+
+    FetchPropertiesBatchResponse:
+      type: object
+      properties:
+        rows:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+        meta:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              type:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+              settings:
+                type: object
+
+    ProposePropertiesResponse:
+      type: object
+      properties:
+        type:
+          type: string
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        details:
+          type: string
+        arguments:
+          type: object
