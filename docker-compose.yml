@@ -1,6 +1,7 @@
 services:
-  reconcile:
+  reconcile-api:
     build: .
+    image: reconcile-api
     ports:
       - "8001:8000"
     volumes:
@@ -8,7 +9,8 @@ services:
         source: ./config.py
         target: /openrefine-wikibase1/config.py
         read_only: true
-  redis:
+  reconcile-valkey:
     image: "valkey/valkey:alpine"
+    name: reconcile-valkey
     expose:
       - "6379" 
