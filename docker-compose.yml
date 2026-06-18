@@ -1,7 +1,7 @@
 services:
   reconcile-api:
     build: .
-    image: reconcile-api
+    container_name: reconcile-api
     ports:
       - "8001:8000"
     volumes:

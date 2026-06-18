@@ -7,5 +7,5 @@ RUN pip install --no-deps . && pip install .
 
 ADD . /openrefine-wikibase
 
-EXPOSE 8000
+EXPOSE 8001
 CMD [ "python", "app.py" ]
