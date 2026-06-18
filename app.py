@@ -331,6 +331,10 @@ async def home():
 async def monitor():
     return {'stats': await g.monitoring.get_rates()}
 
+@app.route('/health')
+async def health():
+    return {'status': 'ok'}
+
 def fix_lang(lng):
     if not lng:
         return 'en'
