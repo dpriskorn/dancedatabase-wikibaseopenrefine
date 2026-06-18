@@ -11,6 +11,5 @@ services:
         read_only: true
   reconcile-valkey:
     image: "valkey/valkey:alpine"
-    name: reconcile-valkey
     expose:
       - "6379" 
