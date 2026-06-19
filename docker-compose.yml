@@ -9,6 +9,8 @@ services:
         source: ./config.py
         target: /openrefine-wikibase1/config.py
         read_only: true
+    environment:
+      - REDIS_URI=redis://reconcile-valkey:6379/0?encoding=utf-8
   reconcile-valkey:
     image: "valkey/valkey:alpine"
     expose:

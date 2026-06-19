@@ -76,8 +76,10 @@ wd_api_max_search_results = 50 # need a bot account to get more
 # The matching score above which we should automatically match an item
 validation_threshold = 95
 
+import os
+
 # Redis client used for caching at various places
-redis_uri = 'redis://redis:6379/0?encoding=utf-8'
+redis_uri = os.environ.get('REDIS_URI', 'redis://localhost:6379/0?encoding=utf-8')
 
 # Redis prefix to use in front of all keys
 redis_key_prefix = 'wikibaseopenrefine:'
