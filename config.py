@@ -65,7 +65,7 @@ avoid_items_of_class = None
 service_name = 'dance.cloud recon service'
 
 # URL (without the trailing slash) where this server runs
-this_host = 'http://localhost:8000'
+this_host = 'http://localhost:8001'
 
 # The default limit on the number of results returned by us
 default_num_results = 25
@@ -141,7 +141,9 @@ wdt_prefix = 'wdt'
 # https://dance.wikibase.cloud/wiki/Property:P2
 # The '$qid' string will be replaced by the qid whose children should be fetched.
 sparql_query_to_fetch_subclasses = """
-SELECT ?child WHERE { ?child wdt:P2* wd:$qid }
+PREFIX dd: <https://dance.wikibase.cloud/entity/>
+PREFIX ddt: <https://dance.wikibase.cloud/prop/direct/>
+SELECT ?child WHERE { ?child ddt:P2* dd:$qid }
 """
 
 # Sparql query used to fetch all the properties which store unique identifiers
@@ -152,18 +154,20 @@ SELECT ?pid WHERE { ?pid wikibase:propertyType wikibase:ExternalId }
 # Sparql query used to propose properties to fetch for items of a given class.
 # Set to None if property proposal should be disabled.
 sparql_query_to_propose_properties = """
+PREFIX dd: <https://dance.wikibase.cloud/entity/>
+PREFIX ddt: <https://dance.wikibase.cloud/prop/direct/>
 SELECT ?prop ?propLabel ?depth WHERE {
 SERVICE gas:service {
     gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.BFS" .
-    gas:program gas:in wd:$base_type .
+    gas:program gas:in dd:$base_type .
     gas:program gas:out ?out .
     gas:program gas:out1 ?depth .
     gas:program gas:maxIterations 10 .
     gas:program gas:maxVisited 100 .
-    gas:program gas:linkType wdt:P40 .
+    gas:program gas:linkType ddt:P40 .
 }
 SERVICE wikibase:label { bd:serviceParam wikibase:language "$lang" }
-?out wdt:$property_for_this_type ?prop .
+?out ddt:$property_for_this_type ?prop .
 }
 ORDER BY ?depth
 LIMIT $limit
