@@ -1,12 +1,18 @@
-FROM python:3.9-slim
+# Stage 1: Builder
+FROM python:3.9-slim AS builder
 
 WORKDIR /openrefine-wikibase
 
+COPY requirements.txt .
+RUN pip install --prefix=/install -r requirements.txt
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Stage 2: Runtime
+FROM python:3.9-slim
 
-ADD . /openrefine-wikibase
+COPY --from=builder /install /usr/local
+
+WORKDIR /openrefine-wikibase
+ADD . .
 
 EXPOSE 8000
-CMD [ "python", "app.py" ]
+CMD ["python", "app.py"]
