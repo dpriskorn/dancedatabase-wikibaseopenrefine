@@ -26,7 +26,7 @@ wikibase_namespace_id = 0
 wikibase_namespace_prefix = ''
 
 # User agent to connect to the Wikidata APIs
-user_agent = 'OpenRefine-Wikidata reconciliation interface'
+user_agent = 'OpenRefine-Wikidata reconciliation interface; User:So9q'
 
 # Regexes and group ids to extracts Qids and Pids from URLs
 import re

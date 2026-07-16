@@ -29,7 +29,7 @@ wikibase_namespace_id = 120
 wikibase_namespace_prefix = 'Item:'
 
 # User agent to connect to the API of your Wikibase instance
-user_agent = 'OpenRefine-Wikibase reconciliation interface'
+user_agent = 'OpenRefine-Wikibase reconciliation interface; User:So9q'
 
 # Regexes and group ids to extracts Qids and Pids from URLs
 import re
